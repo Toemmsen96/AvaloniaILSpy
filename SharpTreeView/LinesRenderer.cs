@@ -5,18 +5,14 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using System.Diagnostics;
 
 namespace ICSharpCode.TreeView
 {
 	class LinesRenderer : Control
 	{
-		static LinesRenderer()
-		{
-			pen = new Pen(Brushes.LightGray, 1);
-		}
-
-		static Pen pen;
+		static readonly IPen pen = new ImmutablePen(new ImmutableSolidColorBrush(Color.FromArgb(0x60, 0x80, 0x80, 0x80)), 1);
 
 		SharpTreeNodeView NodeView
 		{
@@ -25,7 +21,7 @@ namespace ICSharpCode.TreeView
 
 		public override void Render(DrawingContext dc)
 		{
-			if (NodeView.Node == null) {
+			if (NodeView?.Node == null || NodeView.ParentItem?.ParentTreeView == null) {
 				// This seems to happen sometimes with DataContext==DisconnectedItem,
 				// though I'm not sure why WPF would call OnRender() on a disconnected node
 				Debug.WriteLine($"LinesRenderer.OnRender() called with DataContext={NodeView.DataContext}");
@@ -33,7 +29,7 @@ namespace ICSharpCode.TreeView
 			}
 
 			var indent = NodeView.CalculateIndent();
-			var p = new Point(indent + 4.5, 0);
+			var p = new Point(indent + 6, 0);
 
 			if (!NodeView.Node.IsRoot || NodeView.ParentTreeView.ShowRootExpander) {
 				dc.DrawLine(pen, new Point(p.X, Bounds.Height / 2), new Point(p.X + 10, Bounds.Height / 2));
@@ -53,6 +49,7 @@ namespace ICSharpCode.TreeView
 				p = p.WithX(p.X - 19);
 				current = current.Parent;
 				if (p.X < 0) break;
+				if (current == null) break;
 				if (!current.IsLast) {
 					dc.DrawLine(pen, p, new Point(p.X, Bounds.Height));
 				}

@@ -39,10 +39,10 @@ namespace ICSharpCode.ILSpy.Controls
 
         public IList<RoutedCommandBinding> CommandBindings { get; } = new List<RoutedCommandBinding>();
 
-        public ResourceObjectTable(IEnumerable resources, ContentPresenter contentPresenter)
+        public ResourceObjectTable(IEnumerable resources, Control contentPresenter)
         {
             InitializeComponent();
-            resourceListView.Items = resources;
+            resourceListView.ItemsSource = resources;
         }
 
 		private void InitializeComponent()
@@ -67,7 +67,7 @@ namespace ICSharpCode.ILSpy.Controls
 			{
 				sb.AppendLine(item.ToString());
 			}
-			App.Current.Clipboard.SetTextAsync(sb.ToString());
+			App.SetClipboardTextAsync(sb.ToString());
 		}
 		
 		void CanExecuteCopy(object sender, CanExecuteRoutedEventArgs args)

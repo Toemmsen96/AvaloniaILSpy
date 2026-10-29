@@ -40,7 +40,9 @@ namespace ICSharpCode.ILSpy.Search
             listBox = this.FindControl<DataGrid>("listBox");
             searchProgressBar = this.FindControl<ProgressBar>("searchProgressBar");
 
-            searchBox.KeyDown += SearchBox_PreviewKeyDown;
+            searchBox.AddHandler(KeyDownEvent, SearchBox_PreviewKeyDown, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+            // DataGrid handles Enter itself, so the handler has to run while tunneling.
+            listBox.AddHandler(KeyDownEvent, ListBox_KeyDown, Avalonia.Interactivity.RoutingStrategies.Tunnel);
             searchModeComboBox.SelectionChanged += SearchModeComboBox_SelectionChanged;
         }
 	}

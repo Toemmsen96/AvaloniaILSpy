@@ -48,7 +48,7 @@ namespace ICSharpCode.ILSpy.Search
 		static SearchPane instance;
 		RunningSearch currentSearch;
 		bool runSearchOnNextShow;
-        DispatcherTimer updateResultTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2D) };
+        DispatcherTimer updateResultTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(30) };
 
         public ObservableCollection<SearchResult> Results { get; } = new ObservableCollection<SearchResult>();
 
@@ -66,7 +66,7 @@ namespace ICSharpCode.ILSpy.Search
 		public SearchPane()
 		{
 			InitializeComponent();
-			searchModeComboBox.Items = new []{
+			searchModeComboBox.ItemsSource = new []{
 			    new { Image = Images.Library, Name = "Types and Members" },
 			    new { Image = Images.Class, Name = "Type" },
 			    new { Image = Images.Property, Name = "Member" },
@@ -123,31 +123,29 @@ namespace ICSharpCode.ILSpy.Search
 					StartSearch(this.SearchTerm);
 				}
 			}
-            Dispatcher.UIThread.InvokeAsync(
-                new Action(
-                    delegate {
-                        searchBox.Focus();
-                        //searchBox.SelectAll();
-                        searchBox.SelectionStart = 0;
-                        searchBox.SelectionEnd = searchBox.Text?.Length ?? 0;
-                    }),
+            Dispatcher.UIThread.Post(
+                delegate {
+                    searchBox.Focus();
+                    searchBox.SelectAll();
+                },
                 DispatcherPriority.Background);
             updateResultTimer.Start();
         }
 
         public static readonly StyledProperty<string> SearchTermProperty =
-            AvaloniaProperty.Register<SearchPane, string>("SearchTerm", string.Empty, notifying: OnSearchTermChanged);
+            AvaloniaProperty.Register<SearchPane, string>(nameof(SearchTerm), string.Empty);
 
         public string SearchTerm {
 			get { return GetValue(SearchTermProperty) ?? string.Empty; }
 			set { SetValue(SearchTermProperty, value ?? string.Empty); }
 		}
 
-        static void OnSearchTermChanged(IAvaloniaObject o, bool changed)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (changed)
+            base.OnPropertyChanged(change);
+            if (change.Property == SearchTermProperty)
             {
-                ((SearchPane)o).StartSearch(o.GetValue(SearchTermProperty));
+                StartSearch(this.SearchTerm);
             }
         }
 
@@ -200,9 +198,9 @@ namespace ICSharpCode.ILSpy.Search
 		{
 			if (e.Key == Key.Down && Results.Count > 0) {
 				e.Handled = true;
-                // TODO: movefocus
-				//listBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
 				listBox.SelectedIndex = 0;
+				listBox.ScrollIntoView(listBox.SelectedItem, null);
+				listBox.Focus();
 			}
 		}
 
@@ -264,7 +262,7 @@ namespace ICSharpCode.ILSpy.Search
 						return;
 					}
 				}
-				results.Insert(results.Count - 1, result);
+				results.Add(result);
 			} else {
 				// Original Code
 				int index = results.BinarySearch(result, 0, results.Count - 1, SearchResult.Comparer);
@@ -434,8 +432,8 @@ namespace ICSharpCode.ILSpy.Search
 		public string Location { get; set; }
 		public string Name { get; set; }
 		public object ToolTip { get; set; }
-		public IBitmap Image { get; set; }
-		public IBitmap LocationImage { get; set; }
+		public Bitmap Image { get; set; }
+		public Bitmap LocationImage { get; set; }
 		
 		public override string ToString()
 		{

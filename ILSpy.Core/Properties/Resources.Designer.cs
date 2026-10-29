@@ -1351,6 +1351,15 @@ namespace ICSharpCode.ILSpy.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open from _NuGet....
+        /// </summary>
+        public static string OpenFrom_NuGet {
+            get {
+                return ResourceManager.GetString("OpenFrom_NuGet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open List.
         /// </summary>
         public static string OpenList {

@@ -12,6 +12,8 @@ namespace ICSharpCode.TreeView
 {
 	class EditTextBox : TextBox
 	{
+		protected override Type StyleKeyOverride => typeof(TextBox);
+
 		public SharpTreeViewItem Item { get; set; }
 
 		public SharpTreeNode Node {
@@ -35,13 +37,18 @@ namespace ICSharpCode.TreeView
 		{
 			if (e.Key == Key.Enter) {
 				Commit();
+				e.Handled = true;
 			} else if (e.Key == Key.Escape) {
 				Node.IsEditing = false;
+				e.Handled = true;
+			} else {
+				base.OnKeyDown(e);
 			}
 		}
 
 		protected override void OnLostFocus(RoutedEventArgs e)
 		{
+			base.OnLostFocus(e);
 			if (Node.IsEditing) {
 				Commit();
 			}

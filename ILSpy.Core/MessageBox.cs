@@ -23,8 +23,8 @@ namespace ICSharpCode.ILSpy
 		{
 			[MessageBoxButton.OK] = 0,
 			[MessageBoxButton.OKCancel] = 0,
-			[MessageBoxButton.YesNo] = 1,
-			[MessageBoxButton.YesNoCancel] = 1,
+			[MessageBoxButton.YesNo] = 0,
+			[MessageBoxButton.YesNoCancel] = 0,
 		};
 
 		static readonly Dictionary<MessageBoxButton, int> CancelButtonID = new Dictionary<MessageBoxButton, int>()
@@ -72,12 +72,30 @@ namespace ICSharpCode.ILSpy
 			var buttons = Buttons[button];
 
 			// Show Message Window
-			var win = new CustomDialog(caption, messageBoxText, AcceptButtonID[button], CancelButtonID[button], buttons);
-			var btnIndex = await win.ShowDialog<int?>(owner ?? App.Current.GetMainWindow());
+			var win = new CustomDialog(caption, messageBoxText, icon, AcceptButtonID[button], CancelButtonID[button], buttons);
+			owner = owner ?? App.Current?.GetMainWindow();
+			int? btnIndex;
+			if (owner != null && owner.IsVisible) {
+				btnIndex = await win.ShowDialog<int?>(owner);
+			} else {
+				// No (visible) owner yet, e.g. an error during startup: show a normal window.
+				var closed = new TaskCompletionSource<bool>();
+				win.Closed += (sender, e) => closed.TrySetResult(true);
+				win.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+				win.Show();
+				await closed.Task;
+				btnIndex = win.DialogResult as int?;
+			}
 
-			if (btnIndex != null && Enum.TryParse(buttons[btnIndex.Value], out MessageBoxResult result))
+			if (btnIndex != null && btnIndex.Value >= 0 && btnIndex.Value < buttons.Length && Enum.TryParse(buttons[btnIndex.Value], out MessageBoxResult result))
 			{
 				return result;
+			}
+
+			if (CancelButtonID[button] >= 0 && Enum.TryParse(buttons[CancelButtonID[button]], out MessageBoxResult cancelResult) && defaultResult == MessageBoxResult.None)
+			{
+				// closed without pressing a button: treat like "Cancel"/"No"
+				return cancelResult;
 			}
 
 			return defaultResult;

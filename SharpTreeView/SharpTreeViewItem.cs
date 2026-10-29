@@ -39,25 +39,32 @@ namespace ICSharpCode.TreeView
 //					}
 					break;
 				case Key.Escape:
-					Node.IsEditing = false;
+					if (Node != null)
+						Node.IsEditing = false;
 					break;
 			}
+			base.OnKeyDown(e);
 		}
 
 		#region Mouse
 
 		Point startPoint;
-		bool wasSelected;
+		bool deferSelection;
 		bool wasDoubleClick;
+		bool dragStarted;
 
 		protected override void OnPointerPressed(PointerPressedEventArgs e)
 		{
-			wasSelected = IsSelected;
-			if (!IsSelected) {
+			var point = e.GetCurrentPoint(this);
+			// Clicking an already selected item keeps the current (multi-)selection until the
+			// button is released, so that the whole selection can be dragged.
+			deferSelection = IsSelected && point.Properties.IsLeftButtonPressed;
+			dragStarted = false;
+			if (!deferSelection) {
 				base.OnPointerPressed(e);
 			}
 
-			if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) {
+			if (point.Properties.IsLeftButtonPressed) {
 				startPoint = e.GetPosition(this);
 				e.Pointer.Capture(this);
 
@@ -69,13 +76,16 @@ namespace ICSharpCode.TreeView
 
 		protected override void OnPointerMoved(PointerEventArgs e)
 		{
-			if (e.Pointer.Captured == this) {
+			if (e.Pointer.Captured == this && !dragStarted && Node != null && ParentTreeView != null) {
 				var currentPoint = e.GetPosition(this);
 				if (Math.Abs(currentPoint.X - startPoint.X) >= SystemParameters.MinimumHorizontalDragDistance ||
 					Math.Abs(currentPoint.Y - startPoint.Y) >= SystemParameters.MinimumVerticalDragDistance) {
 
 					var selection = ParentTreeView.GetTopLevelSelection().ToArray();
 					if (Node.CanDrag(selection)) {
+						dragStarted = true;
+						deferSelection = false;
+						e.Pointer.Capture(null);
 						Node.StartDrag(e, this, selection);
 					}
 				}
@@ -86,22 +96,25 @@ namespace ICSharpCode.TreeView
 
 		protected override void OnPointerReleased(PointerReleasedEventArgs e)
 		{
-			
+			if (deferSelection && Node != null && ParentTreeView != null) {
+				deferSelection = false;
+				ParentTreeView.SelectFromPointer(this, e);
+			}
+
 			if (wasDoubleClick) {
 				wasDoubleClick = false;
-				Node.ActivateItem(e);
-				if (!e.Handled) {
-					if (!Node.IsRoot || ParentTreeView.ShowRootExpander) {
-						Node.IsExpanded = !Node.IsExpanded;
+				if (Node != null) {
+					Node.ActivateItem(e);
+					if (!e.Handled) {
+						if (!Node.IsRoot || ParentTreeView.ShowRootExpander) {
+							Node.IsExpanded = !Node.IsExpanded;
+						}
 					}
 				}
 			}
 
-			//ReleaseMouseCapture();
 			e.Pointer.Capture(null);
-			if (wasSelected) {
-				base.OnPointerReleased(e);
-			}
+			base.OnPointerReleased(e);
 		}
 
 		#endregion
@@ -110,22 +123,22 @@ namespace ICSharpCode.TreeView
 
 		protected virtual void OnDragEnter(DragEventArgs e)
 		{
-			ParentTreeView.HandleDragEnter(this, e);
+			ParentTreeView?.HandleDragEnter(this, e);
 		}
 
 		protected virtual void OnDragOver(DragEventArgs e)
 		{
-			ParentTreeView.HandleDragOver(this, e);
+			ParentTreeView?.HandleDragOver(this, e);
 		}
 
 		protected virtual void OnDrop(DragEventArgs e)
 		{
-			ParentTreeView.HandleDrop(this, e);
+			ParentTreeView?.HandleDrop(this, e);
 		}
 
 		protected virtual void OnDragLeave(RoutedEventArgs e)
 		{
-			ParentTreeView.HandleDragLeave(this, e);
+			ParentTreeView?.HandleDragLeave(this, e);
 		}
 
 		#endregion

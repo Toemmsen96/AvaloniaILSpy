@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Avalonia.Controls;
+using ICSharpCode.ILSpy.Controls;
 using ICSharpCode.ILSpy.Properties;
 using ICSharpCode.ILSpy.TreeNodes;
 using ICSharpCode.TreeView;
@@ -94,16 +95,10 @@ namespace ICSharpCode.ILSpy.TextView
         /// <returns>The full path of the selected target file, or <c>null</c> if the user canceled.</returns>
         static async Task<string> SelectSolutionFile()
         {
-            SaveFileDialog dlg = new SaveFileDialog();
-			dlg.Title = "Save file";
-            dlg.InitialFileName = "Solution.sln";
-            dlg.Filters = new List<FileDialogFilter>()
-            {
-                new FileDialogFilter { Name = "Visual Studio Solution file", Extensions = { "sln" } },
-                new FileDialogFilter { Name = "All files", Extensions = { "*"} },
-            };
-
-            string filename = await dlg.ShowAsync(MainWindow.Instance);
+            string filename = await FileDialogs.SaveFileAsync(Resources.SaveCode, "Solution.sln", new[] {
+                FileDialogs.Filter("Visual Studio Solution file", "sln"),
+                FileDialogs.AllFiles,
+            });
             if (filename == null)
             {
                 return null;

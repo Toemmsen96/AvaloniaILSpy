@@ -17,35 +17,44 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using AvaloniaEdit;
-using ICSharpCode.ILSpy.Controls;
+using Avalonia.Media;
 
 namespace ICSharpCode.ILSpy.Controls
 {
 	public sealed class CustomDialog : DialogWindow
 	{
-        TextBlock label;
-		ListBox buttons;
-		int acceptButton;
-		int cancelButton;
+		SelectableTextBlock label;
+		ItemsControl buttons;
+		PathIcon icon;
+		readonly int acceptButton;
+		readonly int cancelButton;
 
 		/// <summary>
-		/// Gets the index of the button pressed.
+		/// Gets the index of the button pressed, or -1 if the dialog was closed without pressing a button.
 		/// </summary>
 		public int Result
 		{
 			get {
-				return (int)DialogResult;
+				return DialogResult as int? ?? -1;
 			}
 		}
 
+		// public parameterless constructor for the XAML loader / designer
+		public CustomDialog() : this("Message", string.Empty)
+		{
+		}
+
 		public CustomDialog(string caption, string message, int acceptButton = -1, int cancelButton = -1, params string[] buttonLabels)
+			: this(caption, message, MessageBoxImage.None, acceptButton, cancelButton, buttonLabels)
+		{
+		}
+
+		public CustomDialog(string caption, string message, MessageBoxImage image, int acceptButton = -1, int cancelButton = -1, params string[] buttonLabels)
 		{
 			this.InitializeComponent();
 #if DEBUG
@@ -54,35 +63,86 @@ namespace ICSharpCode.ILSpy.Controls
 			this.acceptButton = acceptButton;
 			this.cancelButton = cancelButton;
 			this.Title = caption;
-			this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-			this.Width = buttonLabels.Length * (100+ 10);
-
-			buttons.Items = buttonLabels;
-
-			
 			label.Text = message;
+
+			var buttonList = new List<Button>();
+			for (int i = 0; i < buttonLabels.Length; i++) {
+				int index = i;
+				var button = new Button {
+					Content = buttonLabels[i],
+					IsDefault = i == acceptButton,
+					IsCancel = i == cancelButton,
+				};
+				if (i == acceptButton)
+					button.Classes.Add("accent");
+				button.Click += (sender, e) => {
+					Close(index);
+					e.Handled = true;
+				};
+				buttonList.Add(button);
+			}
+			buttons.ItemsSource = buttonList;
+
+			SetIcon(image);
+			Opened += (sender, e) => {
+				if (acceptButton >= 0 && acceptButton < buttonList.Count)
+					buttonList[acceptButton].Focus();
+				else if (buttonList.Count > 0)
+					buttonList[0].Focus();
+			};
 		}
 
 		void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
-			this.buttons = this.FindControl<ListBox>("buttons");
-			this.label = this.FindControl<TextBlock>("content");
+			this.buttons = this.FindControl<ItemsControl>("buttons");
+			this.label = this.FindControl<SelectableTextBlock>("content");
+			this.icon = this.FindControl<PathIcon>("icon");
+		}
+
+		void SetIcon(MessageBoxImage image)
+		{
+			string resourceKey;
+			IBrush foreground = null;
+			switch (image) {
+				case MessageBoxImage.Error:
+					resourceKey = "ILSpy.Icon.Error";
+					foreground = new SolidColorBrush(Color.FromRgb(0xD1, 0x34, 0x38));
+					break;
+				case MessageBoxImage.Warning:
+					resourceKey = "ILSpy.Icon.Warning";
+					foreground = new SolidColorBrush(Color.FromRgb(0xF2, 0xA6, 0x00));
+					break;
+				case MessageBoxImage.Question:
+					resourceKey = "ILSpy.Icon.Question";
+					break;
+				case MessageBoxImage.Information:
+					resourceKey = "ILSpy.Icon.Info";
+					break;
+				default:
+					return;
+			}
+			if (foreground == null && this.TryFindResource("SystemAccentColor", ActualThemeVariant, out var accent) && accent is Color c)
+				foreground = new SolidColorBrush(c);
+			if (this.TryFindResource(resourceKey, out var geometry) && geometry is Geometry g) {
+				icon.Data = g;
+				icon.Foreground = foreground;
+				icon.IsVisible = true;
+			}
 		}
 
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
-			if (cancelButton != -1 && e.Key == Key.Escape) {
-				this.Close(cancelButton);
+			if (e.Key == Key.Escape && e.KeyModifiers == KeyModifiers.None) {
+				// Without a cancel button, Escape closes the dialog without a result.
+				if (cancelButton != -1)
+					Close(cancelButton);
+				else
+					Close();
+				e.Handled = true;
+				return;
 			}
-		}
-
-		void ButtonClick(object sender, RoutedEventArgs e)
-		{
-            Button button = sender as Button;
-            int index = buttons.ItemContainerGenerator.IndexFromContainer(button.Parent);
-            this.Close(index);
-			e.Handled = true;
+			base.OnKeyDown(e);
 		}
 	}
 }

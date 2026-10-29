@@ -20,6 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using ICSharpCode.TreeView;
 using System.Linq;
 using ICSharpCode.ILSpy.Controls;
@@ -70,15 +72,23 @@ namespace ICSharpCode.ILSpy
 					return;
 				dialogIsOpen = true;
 			}
-			// We might be unable to display a dialog here, e.g. because
-			// we're on the UI thread but dispatcher processing is disabled.
-			// In any case, we don't want to pump messages while the dialog is displaying,
-			// so we create a separate UI thread for the dialog:
+			// Avalonia windows can only be shown on the UI thread: wait for the dialog there,
+			// either in a nested dispatcher frame (when called on the UI thread) or by blocking the
+			// calling background thread.
 			int result = 0;
-			var thread = new Thread(() => result = ShowAssertionDialog(message, detailMessage, stackTrace));
-			thread.SetApartmentState(ApartmentState.STA);
-			thread.Start();
-			thread.Join();
+			try {
+				if (Dispatcher.UIThread.CheckAccess()) {
+					var task = ShowAssertionDialog(message, detailMessage, stackTrace);
+					var frame = new DispatcherFrame();
+					task.ContinueWith(_ => frame.Continue = false, TaskScheduler.FromCurrentSynchronizationContext());
+					Dispatcher.UIThread.PushFrame(frame);
+					result = task.Result;
+				} else {
+					result = Dispatcher.UIThread.InvokeAsync(() => ShowAssertionDialog(message, detailMessage, stackTrace)).GetAwaiter().GetResult();
+				}
+			} finally {
+				dialogIsOpen = false;
+			}
 			if (result == 0) { // throw
 				throw new AssertionFailedException(message);
 			} else if (result == 1) { // debug
@@ -91,20 +101,23 @@ namespace ICSharpCode.ILSpy
 			}
 		}
 
-		int ShowAssertionDialog(string message, string detailMessage, string stackTrace)
+		async Task<int> ShowAssertionDialog(string message, string detailMessage, string stackTrace)
 		{
 			message = message + Environment.NewLine + detailMessage + Environment.NewLine + stackTrace;
 			string[] buttonTexts = { "Throw", "Debug", "Ignore", "Ignore All" };
-			CustomDialog inputBox = new CustomDialog("Assertion Failed", message.TakeStartEllipsis(750), -1, 2, buttonTexts);
-			//inputBox.StartPosition = Avalonia.Forms.FormStartPosition.CenterScreen;
+			CustomDialog inputBox = new CustomDialog("Assertion Failed", message.TakeStartEllipsis(750), MessageBoxImage.Error, -1, 2, buttonTexts);
 			inputBox.ShowInTaskbar = true; // make this window more visible, because it effectively interrupts the decompilation process.
-			try {
-				inputBox.ShowDialog(MainWindow.Instance);
-				return inputBox.Result;
-			} finally {
-				dialogIsOpen = false;
-				//inputBox.Dispose();
+			var owner = MainWindow.Instance;
+			if (owner != null && owner.IsVisible) {
+				await inputBox.ShowDialog(owner);
+			} else {
+				var closed = new TaskCompletionSource<bool>();
+				inputBox.Closed += (sender, e) => closed.TrySetResult(true);
+				inputBox.Show();
+				await closed.Task;
 			}
+			// closing the dialog without choosing counts as "Ignore"
+			return inputBox.Result < 0 ? 2 : inputBox.Result;
 		}
 	}
 

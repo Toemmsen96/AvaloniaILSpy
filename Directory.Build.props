@@ -1,12 +1,13 @@
 <Project>
 
     <PropertyGroup>
-        <LangVersion>7.2</LangVersion>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup>
-        <AvaloniaVersion>0.10.13</AvaloniaVersion>
-        <AvaloniaEditVersion>0.10.12.2</AvaloniaEditVersion>
+        <AvaloniaVersion>11.3.22</AvaloniaVersion>
+        <AvaloniaDataGridVersion>11.3.13</AvaloniaDataGridVersion>
+        <AvaloniaEditVersion>11.4.1</AvaloniaEditVersion>
     </PropertyGroup>
 
 </Project>

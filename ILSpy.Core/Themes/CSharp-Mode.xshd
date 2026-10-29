@@ -5,44 +5,44 @@
 	-->
 	
 	<!-- The named colors 'Comment' and 'String' are used in SharpDevelop to detect if a line is inside a multiline string/comment -->
-	<Color name="Comment" foreground="Green" exampleText="// comment" />
-	<Color name="String" foreground="Blue" exampleText="string text = &quot;Hello, World!&quot;"/>
-	<Color name="StringInterpolation" foreground="Black" exampleText="string text = $&quot;Hello, {name}!&quot;"/>
-	<Color name="Char" foreground="Magenta" exampleText="char linefeed = '\n';"/>
-	<Color name="Preprocessor" foreground="Green" exampleText="#region Title" />
+	<Color name="Comment" foreground="#008000" exampleText="// comment" />
+	<Color name="String" foreground="#A31515" exampleText="string text = &quot;Hello, World!&quot;"/>
+	<Color name="StringInterpolation" foreground="#1F1F1F" exampleText="string text = $&quot;Hello, {name}!&quot;"/>
+	<Color name="Char" foreground="#A31515" exampleText="char linefeed = '\n';"/>
+	<Color name="Preprocessor" foreground="#808080" exampleText="#region Title" />
 	<Color name="Punctuation" exampleText="a(b.c);" />
-	<Color name="ValueTypeKeywords" fontWeight="bold" foreground="Red" exampleText="bool b = true;" />
-	<Color name="ReferenceTypeKeywords" foreground="Red" exampleText="object o;" />
-	<Color name="NumberLiteral" foreground="DarkBlue" exampleText="3.1415f"/>
-	<Color name="ThisOrBaseReference" fontWeight="bold" exampleText="this.Do(); base.Do();"/>
-	<Color name="NullOrValueKeywords" fontWeight="bold" exampleText="if (value == null)"/>
-	<Color name="Keywords" fontWeight="bold" foreground="Blue" exampleText="if (a) {} else {}"/>
-	<Color name="GotoKeywords" foreground="Navy" exampleText="continue; return null;"/>
-	<Color name="QueryKeywords" foreground="Navy" exampleText="from x in y select z;"/>
-	<Color name="ExceptionKeywords" fontWeight="bold" foreground="Teal" exampleText="try {} catch {} finally {}"/>
-	<Color name="CheckedKeyword" fontWeight="bold" foreground="DarkGray" exampleText="checked {}"/>
-	<Color name="UnsafeKeywords" foreground="Olive" exampleText="unsafe { fixed (..) {} }"/>
-	<Color name="OperatorKeywords" fontWeight="bold" foreground="Pink" exampleText="public static implicit operator..."/>
-	<Color name="ParameterModifiers" fontWeight="bold" foreground="DeepPink" exampleText="(ref int a, params int[] b)"/>
-	<Color name="Modifiers" foreground="Brown" exampleText="static readonly int a;"/>
-	<Color name="Visibility" fontWeight="bold" foreground="Blue" exampleText="public override void ToString();"/>
-	<Color name="NamespaceKeywords" fontWeight="bold" foreground="Green" exampleText="namespace A.B { using System; }"/>
-	<Color name="GetSetAddRemove" foreground="SaddleBrown" exampleText="int Prop { get; set; }"/>
-	<Color name="TrueFalse" fontWeight="bold" foreground="DarkCyan" exampleText="b = false; a = true;" />
-	<Color name="TypeKeywords" fontWeight="bold" foreground="DarkCyan" exampleText="if (x is int) { a = x as int; type = typeof(int); size = sizeof(int); c = new object(); }"/>
-	<Color name="AttributeKeywords" foreground="Navy" exampleText="[assembly: AssemblyVersion(&quot;1.0.0.*&quot;)]" />
+	<Color name="ValueTypeKeywords" foreground="#0000FF" exampleText="bool b = true;" />
+	<Color name="ReferenceTypeKeywords" foreground="#0000FF" exampleText="object o;" />
+	<Color name="NumberLiteral" foreground="#098658" exampleText="3.1415f"/>
+	<Color name="ThisOrBaseReference" foreground="#0000FF" exampleText="this.Do(); base.Do();"/>
+	<Color name="NullOrValueKeywords" foreground="#0000FF" exampleText="if (value == null)"/>
+	<Color name="Keywords" foreground="#8F08C4" exampleText="if (a) {} else {}"/>
+	<Color name="GotoKeywords" foreground="#8F08C4" exampleText="continue; return null;"/>
+	<Color name="QueryKeywords" foreground="#0000FF" exampleText="from x in y select z;"/>
+	<Color name="ExceptionKeywords" foreground="#8F08C4" exampleText="try {} catch {} finally {}"/>
+	<Color name="CheckedKeyword" foreground="#0000FF" exampleText="checked {}"/>
+	<Color name="UnsafeKeywords" foreground="#0000FF" exampleText="unsafe { fixed (..) {} }"/>
+	<Color name="OperatorKeywords" foreground="#0000FF" exampleText="public static implicit operator..."/>
+	<Color name="ParameterModifiers" foreground="#0000FF" exampleText="(ref int a, params int[] b)"/>
+	<Color name="Modifiers" foreground="#0000FF" exampleText="static readonly int a;"/>
+	<Color name="Visibility" foreground="#0000FF" exampleText="public override void ToString();"/>
+	<Color name="NamespaceKeywords" foreground="#0000FF" exampleText="namespace A.B { using System; }"/>
+	<Color name="GetSetAddRemove" foreground="#0000FF" exampleText="int Prop { get; set; }"/>
+	<Color name="TrueFalse" foreground="#0000FF" exampleText="b = false; a = true;" />
+	<Color name="TypeKeywords" foreground="#0000FF" exampleText="if (x is int) { a = x as int; type = typeof(int); size = sizeof(int); c = new object(); }"/>
+	<Color name="AttributeKeywords" foreground="#0000FF" exampleText="[assembly: AssemblyVersion(&quot;1.0.0.*&quot;)]" />
 	
 	<!-- Colors used for semantic highlighting -->
-	<Color name="ReferenceTypes" foreground="#004085" exampleText="System.#{#Uri#}# uri;"/>
-	<Color name="InterfaceTypes" foreground="#004085" exampleText="System.#{#IDisposable#}# obj;"/>
-	<Color name="TypeParameters" foreground="#004085" exampleText="class MyList&lt;#{#T#}#&gt; { }"/>
-	<Color name="DelegateTypes" foreground="#004085" exampleText="System.#{#Action#}#; action;"/>
-	<Color name="ValueTypes" fontWeight="bold" foreground="#004085" exampleText="System.#{#DateTime#}# date;"/>
-	<Color name="EnumTypes" fontWeight="bold" foreground="#004085" exampleText="System.#{#ConsoleKey#}# key;"/>
-	<Color name="MethodCall" foreground="MidnightBlue" fontWeight="bold" exampleText="o.#{#ToString#}#();"/>
+	<Color name="ReferenceTypes" foreground="#2B91AF" exampleText="System.#{#Uri#}# uri;"/>
+	<Color name="InterfaceTypes" foreground="#2B91AF" exampleText="System.#{#IDisposable#}# obj;"/>
+	<Color name="TypeParameters" foreground="#2B91AF" exampleText="class MyList&lt;#{#T#}#&gt; { }"/>
+	<Color name="DelegateTypes" foreground="#2B91AF" exampleText="System.#{#Action#}#; action;"/>
+	<Color name="ValueTypes" foreground="#2B91AF" exampleText="System.#{#DateTime#}# date;"/>
+	<Color name="EnumTypes" foreground="#2B91AF" exampleText="System.#{#ConsoleKey#}# key;"/>
+	<Color name="MethodCall" foreground="#74531F" exampleText="o.#{#ToString#}#();"/>
 	<Color name="FieldAccess" fontStyle="italic" exampleText="return this.#{#name#}#;"/>
-	<Color name="InactiveCode" foreground="Gray" exampleText="#{#Deactivated by #if#}#"/>
-	<Color name="SemanticError" foreground="DarkRed" exampleText="o.#{#MissingMethod#}#()"/>
+	<Color name="InactiveCode" foreground="#808080" exampleText="#{#Deactivated by #if#}#"/>
+	<Color name="SemanticError" foreground="#C50F1F" exampleText="o.#{#MissingMethod#}#()"/>
 	
 	<Property name="DocCommentMarker" value="///" />
 	

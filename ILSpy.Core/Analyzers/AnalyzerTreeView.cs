@@ -50,8 +50,10 @@ namespace ICSharpCode.ILSpy.Analyzers
 		private AnalyzerTreeView()
 		{
 			this.ShowRoot = false;
+			this.ShowLines = false;
 			this.Root = new AnalyzerRootNode { Language = MainWindow.Instance.CurrentLanguage };
 			this.BorderThickness = new Thickness(0);
+			this.Background = Avalonia.Media.Brushes.Transparent;
 			ContextMenuProvider.Add(this);
 			MainWindow.Instance.CurrentAssemblyListChanged += MainWindow_Instance_CurrentAssemblyListChanged;
 		}

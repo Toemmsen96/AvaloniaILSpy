@@ -1,4 +1,4 @@
-// Copyright (c) 2011 AlphaSierraPapa for the SharpDevelop Team
+﻿// Copyright (c) 2011 AlphaSierraPapa for the SharpDevelop Team
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -23,12 +23,10 @@ namespace ICSharpCode.ILSpy
 {
 	public abstract class SimpleCommand : ICommand
 	{
-		//TODO:
-		public event EventHandler CanExecuteChanged;
-		//{
-		//	add { CommandManager.RequerySuggested += value; }
-		//	remove { CommandManager.RequerySuggested -= value; }
-		//}
+		public event EventHandler CanExecuteChanged {
+			add { CommandManager.RequerySuggested += value; }
+			remove { CommandManager.RequerySuggested -= value; }
+		}
 
 		public abstract void Execute(object parameter);
 

@@ -111,18 +111,17 @@ namespace ICSharpCode.ILSpy.TextView
 			textMarkerService = new TextMarkerService(textEditor.TextArea.TextView);
 			textEditor.TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
 			textEditor.TextArea.TextView.LineTransformers.Add(textMarkerService);
-			textEditor.ShowLineNumbers = true;
 			DisplaySettingsPanel.CurrentDisplaySettings.PropertyChanged += CurrentDisplaySettings_PropertyChanged;
 
-			// TODO: SearchPanel is automatically installed, but have to disable replace mode
-            // TemplateApplied += (s,e) => 
-			
+			// remember the mouse position, it's needed for the context menu and tool tips
+			textEditor.TextArea.TextView.AddHandler(PointerMovedEvent, (sender, e) => lastPointerPosition = e.GetPosition(textEditor.TextArea.TextView), RoutingStrategies.Tunnel, handledEventsToo: true);
+			textEditor.TextArea.TextView.AddHandler(PointerPressedEvent, (sender, e) => lastPointerPosition = e.GetPosition(textEditor.TextArea.TextView), RoutingStrategies.Tunnel, handledEventsToo: true);
+			textEditor.TextArea.TextView.PointerExited += (sender, e) => lastPointerPosition = null;
+
 			ShowLineMargin();
-			
-			// add marker service & margin
-			textEditor.TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
-			textEditor.TextArea.TextView.LineTransformers.Add(textMarkerService);
 		}
+
+		Point? lastPointerPosition;
 
         private void InitializeComponent()
         {
@@ -157,11 +156,9 @@ namespace ICSharpCode.ILSpy.TextView
 		
 		void ShowLineMargin()
 		{
-			foreach (var margin in this.textEditor.TextArea.LeftMargins) {
-				if (margin is LineNumberMargin || margin is Line) {
-                    margin.IsVisible = DisplaySettingsPanel.CurrentDisplaySettings.ShowLineNumbers;
-				}
-			}
+			// Let the editor add/remove the margins: a hidden but never measured LineNumberMargin
+			// would still be asked to render and fail because it has no font size yet.
+			textEditor.ShowLineNumbers = DisplaySettingsPanel.CurrentDisplaySettings.ShowLineNumbers;
 		}
 		
 		#endregion
@@ -605,7 +602,8 @@ namespace ICSharpCode.ILSpy.TextView
 					foreach (var r in references) {
 						if (reference.Equals(r.Reference)) {
 							var mark = textMarkerService.Create(r.StartOffset, r.Length);
-							mark.BackgroundColor = r.IsDefinition ? Colors.LightSeaGreen : Colors.GreenYellow;
+							mark.BackgroundColor = GetThemeColor(r.IsDefinition ? "ILSpy.LocalDefinitionColor" : "ILSpy.LocalReferenceColor",
+								r.IsDefinition ? Colors.LightSeaGreen : Colors.GreenYellow);
 							localReferenceMarks.Add(mark);
 						}
 					}
@@ -627,6 +625,11 @@ namespace ICSharpCode.ILSpy.TextView
 				}
 			}
 			MainWindow.Instance.JumpToReference(reference);
+		}
+
+		Color GetThemeColor(string key, Color fallback)
+		{
+			return this.TryFindResource(key, ActualThemeVariant, out var value) && value is Color color ? color : fallback;
 		}
 
 		Point? mouseDownPos;
@@ -686,16 +689,11 @@ namespace ICSharpCode.ILSpy.TextView
             if (!treeNodes.Any())
                 return;
 
-            SaveFileDialog dlg = new SaveFileDialog();
-			dlg.Title = "Save file";
-            dlg.DefaultExtension = language.FileExtension;
-            dlg.Filters = new List<FileDialogFilter>()
-            {
-                new FileDialogFilter() { Name = language.Name, Extensions = { language.FileExtension } },
-                new FileDialogFilter(){ Name = Properties.Resources.AllFiles, Extensions = { "*" } }
-            };
-            dlg.InitialFileName = CleanUpName(treeNodes.First().ToString()) + language.FileExtension;
-            var fileName = await dlg.ShowAsync(App.Current.GetMainWindow());
+            var fileName = await Controls.FileDialogs.SaveFileAsync(Properties.Resources.SaveCode,
+                CleanUpName(treeNodes.First().ToString()) + language.FileExtension, new[] {
+                    Controls.FileDialogs.Filter(language.Name, language.FileExtension),
+                    Controls.FileDialogs.AllFiles,
+                });
             if (fileName != null)
             {
                 SaveToDisk(new DecompilationContext(language, treeNodes.ToArray(), options), fileName);
@@ -752,12 +750,7 @@ namespace ICSharpCode.ILSpy.TextView
 						AvaloniaEditTextOutput output = new AvaloniaEditTextOutput();
 						output.WriteLine("Decompilation complete in " + stopwatch.Elapsed.TotalSeconds.ToString("F1") + " seconds.");
 						output.WriteLine();
-						if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-							output.AddButton(null, Properties.Resources.OpenExplorer, delegate { Process.Start("explorer", "/select,\"" + fileName + "\""); });
-						} else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-						{
-							output.AddButton(null, Properties.Resources.OpenExplorer, delegate { Process.Start("open", "\"" + fileName + "\""); });
-						}
+						output.AddButton(null, Properties.Resources.OpenExplorer, delegate { MainWindow.OpenFolder(fileName); });
 						output.WriteLine();
 						tcs.SetResult(output);
 					} catch (OperationCanceledException) {
@@ -792,8 +785,9 @@ namespace ICSharpCode.ILSpy.TextView
 		
 		internal TextViewPosition? GetPositionFromMousePosition()
 		{
-            IPointerDevice mouse = MainWindow.Instance.PlatformImpl.MouseDevice;
-            var position = textEditor.TextArea.TextView.GetPosition(mouse.GetPosition(textEditor.TextArea.TextView) + textEditor.TextArea.TextView.ScrollOffset);
+			if (lastPointerPosition == null || textEditor.Document == null)
+				return null;
+            var position = textEditor.TextArea.TextView.GetPosition(lastPointerPosition.Value + textEditor.TextArea.TextView.ScrollOffset);
 			if (position == null)
 				return null;
 			var lineLength = textEditor.Document.GetLineByNumber(position.Value.Line).Length + 1;
@@ -824,13 +818,13 @@ namespace ICSharpCode.ILSpy.TextView
 		#region Unfold
 		public void UnfoldAndScroll(int lineNumber)
 		{
-			if (lineNumber <= 0 || lineNumber > textEditor.Document.LineCount)
+			if (textEditor.Document == null || lineNumber <= 0 || lineNumber > textEditor.Document.LineCount)
 				return;
 			
 			var line = textEditor.Document.GetLineByNumber(lineNumber);
 			
 			// unfold
-			var foldings = foldingManager.GetFoldingsContaining(line.Offset);
+			var foldings = foldingManager?.GetFoldingsContaining(line.Offset);
 			if (foldings != null) {
 				foreach (var folding in foldings) {
 					if (folding.IsFolded) {

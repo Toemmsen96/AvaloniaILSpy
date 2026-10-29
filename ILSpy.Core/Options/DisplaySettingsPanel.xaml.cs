@@ -53,7 +53,10 @@ namespace ICSharpCode.ILSpy.Options
 					Dispatcher.UIThread.InvokeAsync(
 						(Action)(
 							async () => {
-								fontSelector.Items = task.Result;
+								fontSelector.ItemsSource = task.Result;
+								// select the matching instance, FontFamily equality also compares the font source
+								if (DataContext is DisplaySettings settings && settings.SelectedFont != null)
+									fontSelector.SelectedItem = task.Result.FirstOrDefault(f => f.Name == settings.SelectedFont.Name) ?? settings.SelectedFont;
 								if (continuation.Exception != null) {
 									foreach (var ex in continuation.Exception.InnerExceptions) {
 										await MessageBox.Show(ex.ToString());
@@ -105,14 +108,39 @@ namespace ICSharpCode.ILSpy.Options
 		static FontFamily[] FontLoader()
 		{
 			// TODO: filter SymbolFonts
-			return FontManager.Current.GetInstalledFontFamilyNames().Select(x => new FontFamily(x)).ToArray();
+			return FontManager.Current.SystemFonts
+				.OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase)
+				.ToArray();
+		}
+
+		static readonly string[] preferredCodeFonts = {
+			"Cascadia Mono", "Cascadia Code", "Consolas", "JetBrains Mono", "SF Mono", "Menlo",
+			"DejaVu Sans Mono", "Liberation Mono", "Noto Sans Mono", "Ubuntu Mono", "Courier New"
+		};
+
+		/// <summary>
+		/// Gets the first installed monospaced font from a list of common code fonts.
+		/// </summary>
+		static FontFamily GetDefaultCodeFont()
+		{
+			try {
+				var installed = FontManager.Current.SystemFonts.Select(f => f.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+				foreach (var name in preferredCodeFonts) {
+					if (installed.Contains(name))
+						return new FontFamily(name);
+				}
+			} catch (Exception ex) {
+				System.Diagnostics.Debug.WriteLine("Could not enumerate fonts: " + ex);
+			}
+			return FontFamily.Default;
 		}
 
 		public static DisplaySettings LoadDisplaySettings(ILSpySettings settings)
 		{
 			XElement e = settings["DisplaySettings"];
 			var s = new DisplaySettings();
-			s.SelectedFont = new FontFamily((string)e.Attribute("Font") ?? FontManager.Current.DefaultFontFamilyName);
+			var font = (string)e.Attribute("Font");
+			s.SelectedFont = string.IsNullOrEmpty(font) ? GetDefaultCodeFont() : new FontFamily(font);
 			s.SelectedFontSize = (double?)e.Attribute("FontSize") ?? 10.0 * 4 / 3;
 			s.ShowLineNumbers = (bool?)e.Attribute("ShowLineNumbers") ?? false;
             s.ShowDebugInfo = (bool?)e.Attribute("ShowDebugInfo") ?? false;
@@ -162,11 +190,6 @@ namespace ICSharpCode.ILSpy.Options
 				currentDisplaySettings.CopyValues(s);
 		}
 
-        private void TextBox_PreviewTextInput(object sender, TextInputEventArgs e)
-        {
-            if (!e.Text.All(char.IsDigit))
-                e.Handled = true;
-        }
     }
 
 
@@ -174,36 +197,28 @@ namespace ICSharpCode.ILSpy.Options
 	{
 		public static readonly FontSizeConverter Instance = new FontSizeConverter();
 
+		// Converts between the font size in device independent pixels (used by the editor)
+		// and in points (shown in the options).
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null) {
-                return 11.0;
-            }
-
-            if (value is double d) {
-				return Math.Round(d / 4 * 3);
-			}
-			
-			throw new NotImplementedException();
+            double points = value is double d ? Math.Round(d / 4 * 3) : 10.0;
+            if (targetType == typeof(decimal) || targetType == typeof(decimal?))
+                return (decimal)points;
+            return points;
 		}
 		
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null) {
-                return 11.0 * 4 / 3;
-            }
-
-            if (value is double dd) {
-                return dd * 4 / 3;
-            }
-
-            if (value is string s) {
-                if (double.TryParse(s, out double d))
+            switch (value) {
+                case double d:
                     return d * 4 / 3;
-                return 11.0 * 4 / 3;
+                case decimal m:
+                    return (double)m * 4 / 3;
+                case string s when double.TryParse(s, out double parsed):
+                    return parsed * 4 / 3;
+                default:
+                    return 10.0 * 4 / 3;
             }
-
-            throw new NotImplementedException();
         }
 	}
 }

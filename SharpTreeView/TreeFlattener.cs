@@ -39,17 +39,17 @@ namespace ICSharpCode.TreeView
 		public void NodesInserted(int index, IEnumerable<SharpTreeNode> nodes)
 		{
 			if (!includeRoot) index--;
-			foreach (SharpTreeNode node in nodes) {
-				RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, node, index++));
-			}
+			var list = new List<SharpTreeNode>(nodes);
+			if (list.Count > 0)
+				RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, list, index));
 		}
 		
 		public void NodesRemoved(int index, IEnumerable<SharpTreeNode> nodes)
 		{
 			if (!includeRoot) index--;
-			foreach (SharpTreeNode node in nodes) {
-				RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, node, index));
-			}
+			var list = new List<SharpTreeNode>(nodes);
+			if (list.Count > 0)
+				RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, list, index));
 		}
 		
 		public void Stop()

@@ -1,24 +1,25 @@
-﻿<UserControl 
-	xmlns="https://github.com/avaloniaui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:properties="clr-namespace:ICSharpCode.ILSpy.Properties"
-    x:Class="ICSharpCode.ILSpy.Options.DecompilerSettingsPanel">
-    
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <TextBlock Margin="3" TextWrapping="Wrap" Text="{x:Static properties:Resources.DecompilerSettingsPanelLongText}" />
-        <DataGrid Grid.Row="1" Margin="1" 
-                  HeadersVisibility="None"
-                  RowBackground="{DynamicResource ThemeBackgroundBrush}"
-                  AlternatingRowBackground="{DynamicResource ThemeBackgroundBrush}"
-                  Items="{Binding AsCollectionView}" >
-              <DataGrid.Columns>
-                <DataGridCheckBoxColumn Binding="{Binding IsEnabled}" IsReadOnly="false" Width="20" />
-                <DataGridTextColumn Binding="{Binding Description}" IsReadOnly="true" Width="*" />
-              </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:properties="clr-namespace:ICSharpCode.ILSpy.Properties"
+             x:Class="ICSharpCode.ILSpy.Options.DecompilerSettingsPanel">
+	<DockPanel Margin="4,12,4,8">
+		<TextBlock DockPanel.Dock="Top" Margin="0,0,0,10" TextWrapping="Wrap" Classes="secondary" Text="{x:Static properties:Resources.DecompilerSettingsPanelLongText}" />
+		<Border BorderBrush="{DynamicResource ILSpy.DividerBrush}" BorderThickness="1" CornerRadius="4" ClipToBounds="True">
+			<DataGrid HeadersVisibility="None"
+			          CanUserResizeColumns="False"
+			          CanUserSortColumns="False"
+			          ItemsSource="{Binding AsCollectionView}">
+				<DataGrid.Columns>
+					<DataGridTemplateColumn Width="40">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<CheckBox IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center" MinWidth="0" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTextColumn Binding="{Binding Description}" IsReadOnly="True" Width="*" />
+				</DataGrid.Columns>
+			</DataGrid>
+		</Border>
+	</DockPanel>
 </UserControl>

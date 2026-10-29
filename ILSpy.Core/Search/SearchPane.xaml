@@ -1,78 +1,76 @@
-﻿<UserControl x:Class="ICSharpCode.ILSpy.Search.SearchPane" xmlns="https://github.com/avaloniaui"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:local="clr-namespace:ICSharpCode.ILSpy.Controls"
-		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:avalonia="clr-namespace:Avalonia;assembly=SharpTreeView"
-        xmlns:properties="clr-namespace:ICSharpCode.ILSpy.Properties"   
-		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" x:Name="searchPane" mc:Ignorable="d"
-		d:DesignHeight="300" d:DesignWidth="300">
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"  />
-            <RowDefinition Height="5" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
-		<Border BorderBrush="{DynamicResource ThemeBorderLowBrush}" Background="{DynamicResource ThemeBackgroundBrush}" Margin="0">
-			<Grid Height="23">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="Auto" />
-				</Grid.ColumnDefinitions>
-				<local:SearchBox x:Name="searchBox" DockPanel.Dock="Top" Grid.Column="0" Grid.Row="0" Margin="1"
-                                 SearchIcon="/Images/Search.png" ClearSearchIcon="/Images/ClearSearch.png"
-                                 Text="{Binding SearchTerm, ElementName=searchPane}" ToolTip.Tip="{x:Static properties:Resources.SearchPane_Search}" UpdateDelay="0:0:0.1"
-                                 WatermarkColor="Gray" Watermark="{x:Static properties:Resources.WatermarkText}" />
-				<StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
-					<TextBlock VerticalAlignment="Center" Text="{x:Static properties:Resources._SearchFor}" />
-					<ComboBox Width="150" Name="searchModeComboBox" Margin="1">
-						<ComboBox.ItemTemplate>
-							<DataTemplate>
-								<StackPanel Orientation="Horizontal">
-									<Image Height="16" Margin="0,0,4,0" Width="16" Source="{Binding Image}" />
-									<TextBlock Text="{Binding Name}" />
-								</StackPanel>
-							</DataTemplate>
-						</ComboBox.ItemTemplate>
-					</ComboBox>
-				</StackPanel>
-			</Grid>
-		</Border>
-        <ProgressBar Name="searchProgressBar" Grid.Row="1" BorderThickness="0" Background="{x:Null}" />
-        <DataGrid Name="listBox"
-                  Grid.Row="2" BorderThickness="0,1,0,0" 
-                  RowBackground="{DynamicResource ThemeBackgroundBrush}"
-                  AlternatingRowBackground="{DynamicResource ThemeBackgroundBrush}"
-                  SelectionMode="Single" 
-                  CanUserReorderColumns="False"
-                  CanUserSortColumns="True"
-                  KeyDown="ListBox_KeyDown"
-                  DoubleTapped="ListBox_MouseDoubleClick"
-                  Items="{Binding }" >
-            
-            <!--TODO:TextTrimming-->
-              <DataGrid.Columns>
-                <DataGridTemplateColumn Header="{x:Static properties:Resources.Name}" SortMemberPath="Name" Width="3*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Height="16" Margin="0,0,4,0" Width="16" Source="{Binding Image}" />
-                                <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding ToolTip}" />
-                            </StackPanel>  
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                
-                <DataGridTemplateColumn Header="{x:Static properties:Resources.Location}" SortMemberPath="Location" Width="7*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Height="16" Margin="4,0,4,0" Width="16" Source="{Binding LocationImage}" />
-                                <TextBlock Text="{Binding Location}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-              </DataGrid.Columns>
-        </DataGrid>
-	</Grid>
+<UserControl x:Class="ICSharpCode.ILSpy.Search.SearchPane"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ICSharpCode.ILSpy.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:properties="clr-namespace:ICSharpCode.ILSpy.Properties"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Name="searchPane"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="600">
+	<DockPanel>
+		<Grid DockPanel.Dock="Top" Margin="8,8,8,6" ColumnDefinitions="*,Auto,Auto">
+			<local:SearchBox x:Name="searchBox"
+			                 SearchTerm="{Binding #searchPane.SearchTerm, Mode=TwoWay}"
+			                 UpdateDelay="0:0:0.15"
+			                 ToolTip.Tip="{x:Static properties:Resources.SearchPane_Search}"
+			                 Watermark="{x:Static properties:Resources.WatermarkText}" />
+			<Label Grid.Column="1"
+			       Margin="12,0,6,0"
+			       VerticalAlignment="Center"
+			       Foreground="{DynamicResource ILSpy.SecondaryTextBrush}"
+			       Target="{Binding #searchModeComboBox}"
+			       Content="{x:Static properties:Resources._SearchFor}" />
+			<ComboBox Grid.Column="2" Name="searchModeComboBox" MinWidth="170" VerticalAlignment="Stretch">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal" Spacing="6">
+							<Image Height="16" Width="16" Source="{Binding Image}" />
+							<TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+						</StackPanel>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+		</Grid>
+		<ProgressBar Name="searchProgressBar"
+		             DockPanel.Dock="Top"
+		             MinHeight="2"
+		             Height="2"
+		             Background="Transparent"
+		             IsVisible="{Binding $self.IsIndeterminate}" />
+		<DataGrid Name="listBox"
+		          BorderThickness="0,1,0,0"
+		          BorderBrush="{DynamicResource ILSpy.DividerBrush}"
+		          SelectionMode="Single"
+		          IsReadOnly="True"
+		          CanUserReorderColumns="False"
+		          CanUserSortColumns="True"
+		          CanUserResizeColumns="True"
+		          HeadersVisibility="Column"
+		          DoubleTapped="ListBox_MouseDoubleClick"
+		          ItemsSource="{Binding}">
+			<DataGrid.Columns>
+				<DataGridTemplateColumn Header="{x:Static properties:Resources.Name}" SortMemberPath="Name" Width="3*">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal" Margin="8,0" Spacing="6" Background="Transparent" ToolTip.Tip="{Binding ToolTip}">
+								<Image Height="16" Width="16" Source="{Binding Image}" />
+								<TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+							</StackPanel>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+				<DataGridTemplateColumn Header="{x:Static properties:Resources.Location}" SortMemberPath="Location" Width="5*">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal" Margin="8,0" Spacing="6">
+								<Image Height="16" Width="16" Source="{Binding LocationImage}" />
+								<TextBlock Text="{Binding Location}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Classes="secondary" />
+							</StackPanel>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+	</DockPanel>
 </UserControl>

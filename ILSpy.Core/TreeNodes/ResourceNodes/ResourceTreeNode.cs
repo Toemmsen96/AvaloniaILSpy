@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using AvaloniaEdit.Highlighting;
 using AvaloniaEdit.Utils;
+using ICSharpCode.ILSpy.Controls;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.Metadata;
 using ICSharpCode.ILSpy.Properties;
@@ -107,14 +108,11 @@ namespace ICSharpCode.ILSpy.TreeNodes
 			Stream s = Resource.TryOpenStream();
 			if (s == null)
 				return false;
-            SaveFileDialog dlg = new SaveFileDialog();
-			dlg.Title = "Save file";
-            dlg.InitialFileName = DecompilerTextView.CleanUpName(Resource.Name);
-            var filename = await dlg.ShowAsync(App.Current.GetMainWindow());
+            var filename = await FileDialogs.SaveFileAsync(Properties.Resources.SaveCode, DecompilerTextView.CleanUpName(Resource.Name));
             if (!string.IsNullOrEmpty(filename))
             {
                 s.Position = 0;
-                using (var fs = File.OpenWrite(filename))
+                using (var fs = File.Create(filename))
                 {
                     s.CopyTo(fs);
                 }

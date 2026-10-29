@@ -1,25 +1,28 @@
-﻿<UserControl x:Name="self"
+<UserControl x:Name="self"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:avalonia="clr-namespace:Avalonia;assembly=SharpTreeView"
-             xmlns:properties="clr-namespace:ICSharpCode.ILSpy.Properties"   
+             xmlns:properties="clr-namespace:ICSharpCode.ILSpy.Properties"
              xmlns:ae="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              x:Class="ICSharpCode.ILSpy.TextView.DecompilerTextView">
-	<Grid>
-		<Border BorderThickness="1,1,0,1" BorderBrush="#FF828790">
-			<Grid>
-				<ae:TextEditor Name="textEditor" FontFamily="Consolas" FontSize="10" IsReadOnly="True"
-				               Background="{DynamicResource ThemeCodeBackgroundBrush}"
-				               Foreground="{DynamicResource ThemeCodeForegroundBrush}">
-				</ae:TextEditor>
-        <Border Name="waitAdorner" Background="#C0FFFFFF" IsVisible="false">
-					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-						<TextBlock FontSize="14" Text="{x:Static properties:Resources.Decompiling}" />
-						<ProgressBar Name="progressBar" Height="16" Margin="0, 4" />
-						<Button Name="cancelButton"  HorizontalAlignment="Center" Content="{x:Static properties:Resources.Cancel}" />
-					</StackPanel>
-				</Border>
-			</Grid>
+	<Panel>
+		<ae:TextEditor Name="textEditor"
+		               IsReadOnly="True"
+		               Padding="4,4,0,0" />
+		<Border Name="waitAdorner" Background="{DynamicResource ILSpy.OverlayBackgroundBrush}" IsVisible="False">
+			<Border HorizontalAlignment="Center"
+			        VerticalAlignment="Center"
+			        Padding="24,18"
+			        CornerRadius="8"
+			        Background="{DynamicResource ILSpy.PaneBackgroundBrush}"
+			        BorderBrush="{DynamicResource ILSpy.DividerBrush}"
+			        BorderThickness="1"
+			        BoxShadow="0 4 16 0 #30000000">
+				<StackPanel Spacing="12" MinWidth="240">
+					<TextBlock FontSize="14" HorizontalAlignment="Center" Text="{x:Static properties:Resources.Decompiling}" />
+					<ProgressBar Name="progressBar" />
+					<Button Name="cancelButton" HorizontalAlignment="Center" Content="{x:Static properties:Resources.Cancel}" />
+				</StackPanel>
+			</Border>
 		</Border>
-	</Grid>
+	</Panel>
 </UserControl>

@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using ICSharpCode.ILSpy.Controls;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.Metadata;
 using ICSharpCode.ILSpy.TextView;
@@ -316,21 +317,15 @@ namespace ICSharpCode.ILSpy.TreeNodes
 			Language language = this.Language;
 			if (string.IsNullOrEmpty(language.ProjectFileExtension))
 				return false;
-			SaveFileDialog dlg = new SaveFileDialog();
-			dlg.Title = "Save file";
-            dlg.InitialFileName = DecompilerTextView.CleanUpName(LoadedAssembly.ShortName);
-			dlg.Filters = new List<FileDialogFilter>() 
-			{
-                new FileDialogFilter() { Name = language.Name + " project", Extensions = { language.ProjectFileExtension.TrimStart('.') } },
-                new FileDialogFilter() { Name = language.Name + "  single file", Extensions = { language.FileExtension.TrimStart('.') }},
-				new FileDialogFilter() { Name = "All files", Extensions = { "*" }}
-			};
-
-			var filename = await dlg.ShowAsync(App.Current.GetMainWindow());
+			var filename = await FileDialogs.SaveFileAsync(Resources.SaveCode, DecompilerTextView.CleanUpName(LoadedAssembly.ShortName) + language.ProjectFileExtension, new[] {
+				FileDialogs.Filter(language.Name + " project", language.ProjectFileExtension),
+				FileDialogs.Filter(language.Name + " single file", language.FileExtension),
+				FileDialogs.AllFiles,
+			});
 			if (!string.IsNullOrEmpty(filename)) {
 				DecompilationOptions options = new DecompilationOptions();
 				options.FullDecompilation = true;
-				if (filename.Contains(language.ProjectFileExtension)) {
+				if (string.Equals(Path.GetExtension(filename), language.ProjectFileExtension, StringComparison.OrdinalIgnoreCase)) {
 					options.SaveAsProjectDirectory = Path.GetDirectoryName(filename);
 					foreach (string entry in Directory.GetFileSystemEntries(options.SaveAsProjectDirectory)) {
 						if (!string.Equals(entry, filename, StringComparison.OrdinalIgnoreCase)) {

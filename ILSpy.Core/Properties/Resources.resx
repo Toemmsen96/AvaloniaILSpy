@@ -153,6 +153,9 @@
   <data name="_Open" xml:space="preserve">
     <value>_Open...</value>
   </data>
+  <data name="OpenFrom_NuGet" xml:space="preserve">
+    <value>Open from _NuGet...</value>
+  </data>
   <data name="OpenFrom_GAC" xml:space="preserve">
     <value>Open from _GAC...</value>
   </data>

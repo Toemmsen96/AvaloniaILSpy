@@ -20,6 +20,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using ICSharpCode.ILSpy.Controls;
 using ICSharpCode.Decompiler;
 using ICSharpCode.ILSpy.TextView;
 using Microsoft.Win32;
@@ -82,13 +83,10 @@ namespace ICSharpCode.ILSpy.TreeNodes
 
 		public override async Task<bool> Save(DecompilerTextView textView)
 		{
-			SaveFileDialog dlg = new SaveFileDialog();
-			dlg.Title = "Save file";
-			dlg.InitialFileName = Path.GetFileName(DecompilerTextView.CleanUpName(key));
-			var filename = await dlg.ShowAsync(App.Current.GetMainWindow());
+			var filename = await FileDialogs.SaveFileAsync(Properties.Resources.SaveCode, Path.GetFileName(DecompilerTextView.CleanUpName(key)));
 			if (!string.IsNullOrEmpty(filename)) {
 				data.Position = 0;
-				using (var fs = File.OpenWrite(filename)) {
+				using (var fs = File.Create(filename)) {
 					data.CopyTo(fs);
 				}
 			}

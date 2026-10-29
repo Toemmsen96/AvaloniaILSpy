@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <EnableDefaultItems>false</EnableDefaultItems>
     <SignAssembly>True</SignAssembly>
@@ -28,17 +28,16 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaDataGridVersion)" />
     <PackageReference Include="ICSharpCode.Decompiler" Version="8.0.0.7345" />
     <PackageReference Include="Microsoft.DiaSymReader" Version="1.4.0" />
     <PackageReference Include="Microsoft.DiaSymReader.Converter.Xml" Version="1.1.0-beta2-22164-02" />
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.1.20" />
     <PackageReference Include="NuGet.Client" Version="4.2.0" />
-    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
-    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="Avalonia.AvaloniaEdit" Version="$(AvaloniaEditVersion)" />
-    <PackageReference Include="System.Text.Encoding.Extensions" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,11 +46,11 @@
   
   <ItemGroup>
     <Compile Update="**\*.xaml.cs" DependentUpon="%(Filename)" />
-    <AvaloniaResource Include="**\*.xaml" Exclude="Themes\*" SubType="Designer" />
+    <AvaloniaResource Include="**\*.axaml;**\*.xaml" Exclude="bin\**;obj\**" SubType="Designer" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\*.png;Themes\*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Images\*.png" CopyToOutputDirectory="PreserveNewest" />
     <AvaloniaResource Include="Images\ILSpy.png;Images\PrivateInternal.png;Images\ShowAll.png;Images\Search.png;Images\ClearSearch.png;" />
   </ItemGroup>
 
@@ -59,7 +58,7 @@
   <ItemGroup>
     <EmbeddedResource Include="README.txt" />
     <EmbeddedResource Include="..\doc\*.txt" />
-    <EmbeddedResource Include="Themes\ILAsm-Mode.xshd;Themes\CSharp-Mode.xshd" />
+    <EmbeddedResource Include="Themes\*.xshd" />
     <EmbeddedResource Include="**\*.resx;Assets\*;**\*.paml" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 

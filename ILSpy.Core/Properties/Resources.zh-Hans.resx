@@ -153,6 +153,9 @@
   <data name="_Open" xml:space="preserve">
     <value>打开(_O)...</value>
   </data>
+  <data name="OpenFrom_NuGet" xml:space="preserve">
+    <value>从_NuGet中打开......</value>
+  </data>
   <data name="OpenFrom_GAC" xml:space="preserve">
     <value>从_GAC中打开......</value>
   </data>

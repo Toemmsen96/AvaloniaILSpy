@@ -76,7 +76,8 @@ namespace ICSharpCode.TreeView
 		{
 			base.OnAttachedToVisualTree(e);
 			ParentItem = this.FindAncestor<SharpTreeViewItem>();
-			ParentItem.NodeView = this;
+			if (ParentItem != null)
+				ParentItem.NodeView = this;
 		}
 
 		protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -94,16 +95,23 @@ namespace ICSharpCode.TreeView
 			textContainer = e.NameScope.Find<Border>("textContainer");
 			textContent = e.NameScope.Find<ContentPresenter>("textContent");
 
+			ClearBindings();
 			UpdateTemplate();
 		}
 
-		protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> e)
+		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs e)
 		{
 			base.OnPropertyChanged(e);
 			if (e.Property == DataContextProperty)
 			{
-				UpdateDataContext(e.OldValue.GetValueOrDefault<SharpTreeNode>(), e.NewValue.GetValueOrDefault<SharpTreeNode>());
+				UpdateDataContext(e.OldValue as SharpTreeNode, e.NewValue as SharpTreeNode);
 			}
+		}
+
+		void ClearBindings()
+		{
+			bindings.ForEach((obj) => obj.Dispose());
+			bindings.Clear();
 		}
 
 		void UpdateDataContext(SharpTreeNode oldNode, SharpTreeNode newNode)
@@ -111,12 +119,11 @@ namespace ICSharpCode.TreeView
 			if (oldNode != null)
 			{
 				oldNode.PropertyChanged -= Node_PropertyChanged;
-				bindings.ForEach((obj) => obj.Dispose());
-				bindings.Clear();
 			}
+			ClearBindings();
 			if (newNode != null) {
 				newNode.PropertyChanged += Node_PropertyChanged;
-				if (Template != null) {
+				if (expander != null) {
 					UpdateTemplate();
 				}
 			}
@@ -124,21 +131,23 @@ namespace ICSharpCode.TreeView
 
 		void Node_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
+			if (Node == null || ParentItem?.ParentTreeView == null)
+				return;
 			if (e.PropertyName == "IsEditing") {
 				OnIsEditingChanged();
 			} else if (e.PropertyName == "IsLast") {
 				if (ParentTreeView.ShowLines) {
 					foreach (var child in Node.VisibleDescendantsAndSelf()) {
-						var container = ParentTreeView.ContainerFromItem(child) as SharpTreeViewItem;
-						if (container != null && container.NodeView != null) {
-							container.NodeView.LinesRenderer.InvalidateVisual();
-						}
+						var container = ParentTreeView.ContainerFromNode(child);
+						container?.NodeView?.LinesRenderer?.InvalidateVisual();
 					}
 				}
 			} else if (e.PropertyName == "IsExpanded") {
 				RaisePropertyChanged(IconProperty, null, Icon);
 				if (Node.IsExpanded)
 					ParentTreeView.HandleExpanding(Node);
+			} else if (e.PropertyName == "Icon" || e.PropertyName == "ExpandedIcon") {
+				RaisePropertyChanged(IconProperty, null, Icon);
 			}
 		}
 
@@ -157,6 +166,8 @@ namespace ICSharpCode.TreeView
 
 		void UpdateTemplate()
 		{
+			if (expander == null || ParentItem?.ParentTreeView == null)
+				return;
 			if(Node != null)
 			{
 				bindings.Add(expander.Bind(ToggleButton.IsVisibleProperty, new Binding("ShowExpander") { Source = Node }));
@@ -170,6 +181,7 @@ namespace ICSharpCode.TreeView
 			}
 
 			spacer.Width = CalculateIndent();
+			LinesRenderer?.InvalidateVisual();
 
 			if (ParentTreeView.Root == Node && !ParentTreeView.ShowRootExpander) {
 				expander.IsVisible = false;
@@ -181,6 +193,8 @@ namespace ICSharpCode.TreeView
 
 		internal double CalculateIndent()
 		{
+			if (Node == null || ParentItem?.ParentTreeView == null)
+				return 0;
 			var result = 19 * Node.Level;
 			if (ParentTreeView.ShowRoot) {
 				if (!ParentTreeView.ShowRootExpander) {

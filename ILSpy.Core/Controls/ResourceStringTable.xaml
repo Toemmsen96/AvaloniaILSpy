@@ -14,15 +14,9 @@
 			<RowDefinition />
 		</Grid.RowDefinitions>
 		<TextBlock Margin="5" Text="{x:Static properties:Resources.StringTable}"
-			   FontFamily="Segoe UI"
-			   FontWeight="Bold"
-			   FontSize="12" />
+			   Classes="sectionHeader" />
         <DataGrid Name="resourceListView"
-                  FontFamily="Segoe UI"
-                  FontSize="9"
                   Grid.Row="1"
-                  RowBackground="{DynamicResource ThemeBackgroundBrush}"
-                  AlternatingRowBackground="{DynamicResource ThemeAccentBrush4}"
                   CanUserResizeColumns="True">
           <DataGrid.Columns>
             <DataGridTextColumn Header="{x:Static properties:Resources.Name}" Binding="{Binding Key}" Width="*" />

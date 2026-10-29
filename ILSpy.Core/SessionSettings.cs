@@ -79,7 +79,7 @@ namespace ICSharpCode.ILSpy
 		
 		public WindowState WindowState = WindowState.Normal;
 		public Rect WindowBounds;
-		internal static Rect DefaultWindowBounds =  new Rect(10, 10, 750, 550);
+		internal static Rect DefaultWindowBounds =  new Rect(10, 10, 1280, 800);
 		/// <summary>
 		/// position of the left/right splitter
 		/// </summary>
@@ -138,7 +138,8 @@ namespace ICSharpCode.ILSpy
 			try {
 				TypeConverter c = TypeDescriptor.GetConverter(typeof(T));
 				return (T)c.ConvertFromInvariantString(s);
-			} catch (FormatException) {
+			} catch (Exception ex) when (ex is FormatException || ex is ArgumentException || ex is NotSupportedException) {
+				// e.g. an enum value that no longer exists
 				return defaultValue;
 			}
 		}
@@ -147,7 +148,11 @@ namespace ICSharpCode.ILSpy
 		{
 			if (s == null)
 				return defaultValue;
-			return Rect.Parse(s);
+			try {
+				return Rect.Parse(s);
+			} catch (FormatException) {
+				return defaultValue;
+			}
 		}
 		
 		static string ToString<T>(T obj)

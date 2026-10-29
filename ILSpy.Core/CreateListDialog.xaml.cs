@@ -14,7 +14,7 @@ namespace ICSharpCode.ILSpy
 	/// </summary>
 	public partial class CreateListDialog : DialogWindow
 	{
-		public new bool DialogResult => base.DialogResult != null && (bool)base.DialogResult;
+		public new bool DialogResult => base.DialogResult is true;
 
 		internal Button okButton;
 		internal Button cancelButton;
@@ -35,14 +35,12 @@ namespace ICSharpCode.ILSpy
 			cancelButton = this.FindControl<Button>("cancelButton");
 			ListName = this.FindControl<TextBox>("ListName");
 
-			// Work around for TextChanged event
-			//ListName.TextInput += TextBox_TextChanged;
-			ListName.GetObservable(TextBox.TextProperty).Subscribe(text => TextBox_TextChanged(this, new TextInputEventArgs{Text = text}));
+			ListName.TextChanged += TextBox_TextChanged;
 
-			TemplateApplied += (sender, e) => Application.Current.FocusManager.Focus(ListName);
+			Opened += (sender, e) => ListName.Focus();
 		}
 
-		private void TextBox_TextChanged(object sender, TextInputEventArgs e)
+		private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			okButton.IsEnabled = !string.IsNullOrWhiteSpace(ListName.Text);
 		}

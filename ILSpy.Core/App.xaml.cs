@@ -31,6 +31,7 @@ using Microsoft.VisualStudio.Composition;
 using Avalonia;
 using Avalonia.Markup.Xaml;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using AvaloniaEdit.Rendering;
 
 namespace ICSharpCode.ILSpy
@@ -79,8 +80,7 @@ namespace ICSharpCode.ILSpy
 			if (alwaysShowErrorBox || !Debugger.IsAttached)
 			{
 				AppDomain.CurrentDomain.UnhandledException += ShowErrorBox;
-				//TODO: dispatcher UnhandledException
-				//Dispatcher.CurrentDispatcher.UnhandledException += Dispatcher_UnhandledException;
+				Dispatcher.UIThread.UnhandledException += Dispatcher_UnhandledException;
 			}
 			TaskScheduler.UnobservedTaskException += DotNet40_UnobservedTaskException;
 
@@ -154,10 +154,10 @@ namespace ICSharpCode.ILSpy
 		}
 		
 		#region Exception Handling
-		static void Dispatcher_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		static void Dispatcher_UnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
 		{
-			UnhandledException(e.ExceptionObject as Exception);
-			//e.Handled = true;
+			UnhandledException(e.Exception);
+			e.Handled = true;
 		}
 		
 		static void ShowErrorBox(object sender, UnhandledExceptionEventArgs e)
@@ -179,7 +179,16 @@ namespace ICSharpCode.ILSpy
 					break;
 				}
 			}
-			MessageBox.Show(exception.ToString(), "Sorry, we crashed");
+			MessageBox.Show(exception.ToString(), "Sorry, we crashed", MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+
+		/// <summary>
+		/// Copies <paramref name="text"/> to the clipboard.
+		/// </summary>
+		internal static System.Threading.Tasks.Task SetClipboardTextAsync(string text)
+		{
+			var clipboard = TopLevel.GetTopLevel(ILSpy.MainWindow.Instance)?.Clipboard;
+			return clipboard?.SetTextAsync(text) ?? System.Threading.Tasks.Task.CompletedTask;
 		}
 
 		//protected override void OnStartup(StartupEventArgs e)

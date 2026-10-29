@@ -1,0 +1,151 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ae="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit">
+
+	<Style Selector="Window">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.PaneBackgroundBrush}" />
+	</Style>
+
+	<Style Selector="Window.DialogWindow">
+		<Setter Property="ShowInTaskbar" Value="False" />
+		<Setter Property="UseLayoutRounding" Value="True" />
+	</Style>
+
+	<!-- Dialog button rows -->
+	<Style Selector="StackPanel.dialogButtons">
+		<Setter Property="Orientation" Value="Horizontal" />
+		<Setter Property="HorizontalAlignment" Value="Right" />
+		<Setter Property="Spacing" Value="8" />
+	</Style>
+	<Style Selector="StackPanel.dialogButtons Button">
+		<Setter Property="MinWidth" Value="88" />
+		<Setter Property="HorizontalContentAlignment" Value="Center" />
+	</Style>
+	<Style Selector="Border.dialogFooter">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.WindowBackgroundBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource ILSpy.DividerBrush}" />
+		<Setter Property="BorderThickness" Value="0,1,0,0" />
+		<Setter Property="Padding" Value="16,12" />
+	</Style>
+
+	<!-- Toolbar -->
+	<Style Selector="Border.toolbarHost">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.WindowBackgroundBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource ILSpy.DividerBrush}" />
+		<Setter Property="BorderThickness" Value="0,0,0,1" />
+		<Setter Property="Padding" Value="6,4" />
+	</Style>
+	<Style Selector="Border.toolbarSeparator">
+		<Setter Property="Width" Value="1" />
+		<Setter Property="Height" Value="18" />
+		<Setter Property="Margin" Value="6,0" />
+		<Setter Property="VerticalAlignment" Value="Center" />
+		<Setter Property="Background" Value="{DynamicResource ILSpy.DividerBrush}" />
+	</Style>
+	<Style Selector="Button.toolbar, ToggleButton.toolbar">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="BorderBrush" Value="Transparent" />
+		<Setter Property="Padding" Value="5" />
+		<Setter Property="MinWidth" Value="0" />
+		<Setter Property="Width" Value="30" />
+		<Setter Property="Height" Value="28" />
+		<Setter Property="CornerRadius" Value="4" />
+		<Setter Property="HorizontalContentAlignment" Value="Center" />
+		<Setter Property="VerticalContentAlignment" Value="Center" />
+		<Setter Property="Focusable" Value="False" />
+	</Style>
+	<Style Selector="Button.toolbar PathIcon, ToggleButton.toolbar PathIcon">
+		<Setter Property="Width" Value="16" />
+		<Setter Property="Height" Value="16" />
+	</Style>
+	<Style Selector="Button.toolbar:disabled /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.toolbar:disabled /template/ ContentPresenter#PART_ContentPresenter">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="BorderBrush" Value="Transparent" />
+		<Setter Property="Opacity" Value="0.4" />
+	</Style>
+	<Style Selector="ToggleButton.toolbar:checked /template/ ContentPresenter#PART_ContentPresenter">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.SelectionBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+	</Style>
+	<Style Selector="ToggleButton.toolbar:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.SelectionBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+	</Style>
+	<Style Selector="ComboBox.toolbar">
+		<Setter Property="Height" Value="28" />
+		<Setter Property="MinHeight" Value="28" />
+		<Setter Property="Padding" Value="8,0,0,0" />
+		<Setter Property="VerticalAlignment" Value="Center" />
+		<Setter Property="VerticalContentAlignment" Value="Center" />
+	</Style>
+
+	<!-- Status bar -->
+	<Style Selector="Border.statusBar">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.WindowBackgroundBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource ILSpy.DividerBrush}" />
+		<Setter Property="BorderThickness" Value="0,1,0,0" />
+		<Setter Property="Padding" Value="10,3" />
+	</Style>
+
+	<!-- Splitters: invisible, but with a comfortable hit area -->
+	<Style Selector="GridSplitter">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="Focusable" Value="False" />
+		<Setter Property="MinWidth" Value="0" />
+		<Setter Property="MinHeight" Value="0" />
+	</Style>
+	<Style Selector="GridSplitter:pointerover">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.SelectionBrush}" />
+	</Style>
+
+	<!-- Information bar (e.g. "update available") -->
+	<Style Selector="Border.infoBar">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.InfoBarBackgroundBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource ILSpy.InfoBarBorderBrush}" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="CornerRadius" Value="6" />
+		<Setter Property="Padding" Value="10,6" />
+		<Setter Property="Margin" Value="8,8,8,4" />
+	</Style>
+
+	<!-- Panels inside the main window -->
+	<Style Selector="Border.pane">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.PaneBackgroundBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource ILSpy.DividerBrush}" />
+	</Style>
+	<Style Selector="TextBlock.sectionHeader">
+		<Setter Property="FontWeight" Value="SemiBold" />
+		<Setter Property="Margin" Value="0,0,0,6" />
+	</Style>
+	<Style Selector="TextBlock.secondary">
+		<Setter Property="Foreground" Value="{DynamicResource ILSpy.SecondaryTextBrush}" />
+	</Style>
+
+	<!-- Compact data grids -->
+	<Style Selector="DataGrid">
+		<Setter Property="GridLinesVisibility" Value="None" />
+		<Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource ILSpy.DividerBrush}" />
+		<Setter Property="RowBackground" Value="Transparent" />
+	</Style>
+	<Style Selector="DataGridRow">
+		<Setter Property="MinHeight" Value="24" />
+	</Style>
+	<Style Selector="DataGridCell">
+		<Setter Property="MinHeight" Value="24" />
+		<Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+	</Style>
+	<Style Selector="DataGridColumnHeader">
+		<Setter Property="MinHeight" Value="28" />
+		<Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+	</Style>
+
+	<!-- Code editor -->
+	<Style Selector="ae|TextEditor">
+		<Setter Property="Background" Value="{DynamicResource ILSpy.CodeBackgroundBrush}" />
+		<Setter Property="Foreground" Value="{DynamicResource ILSpy.CodeForegroundBrush}" />
+		<Setter Property="LineNumbersForeground" Value="{DynamicResource ILSpy.LineNumberBrush}" />
+	</Style>
+</Styles>

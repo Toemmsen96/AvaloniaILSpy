@@ -21,7 +21,7 @@ namespace Avalonia
 		public static IBrush ControlDarkBrush {get;} = new ImmutableSolidColorBrush(Color.FromUInt32(0xFFA0A0A0));
 		public static IBrush ControlLightBrush { get; } = new ImmutableSolidColorBrush(Color.FromUInt32(0xFFE3E3E3));
 		public static IBrush ControlBrush { get; } = new ImmutableSolidColorBrush(Color.FromUInt32(0xFFF0F0F0));
-		public static IBrush HighlightBrush {get;} = new ImmutableSolidColorBrush(Color.FromUInt32(0xFFFFFFFF));
+		public static IBrush HighlightBrush {get;} = new ImmutableSolidColorBrush(Color.FromUInt32(0xFF3399FF));
 		public static IBrush HighlightTextBrush {get;} = new ImmutableSolidColorBrush(Color.FromUInt32(0xFFFFFFFF));
 		public static IBrush WindowTextBrush {get;} = new ImmutableSolidColorBrush(Color.FromUInt32(0xFF000000));
 		public static IBrush WindowBrush {get;} = new ImmutableSolidColorBrush(Color.FromUInt32(0xFFFFFFFF));

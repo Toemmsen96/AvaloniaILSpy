@@ -19,28 +19,23 @@
 
 using System.Collections.Generic;
 using Avalonia.Controls;
+using ICSharpCode.ILSpy.Controls;
 using ICSharpCode.ILSpy.Properties;
 using NuGet.Common;
 
 namespace ICSharpCode.ILSpy
 {
-    [ExportMainMenuCommand(Menu = nameof(Resources._File), Header = nameof(Resources.OpenFrom_GAC), MenuIcon = "Images/AssemblyListGAC.png", MenuCategory = nameof(Resources.Open), MenuOrder = 1)]
+    [ExportMainMenuCommand(Menu = nameof(Resources._File), Header = nameof(Resources.OpenFrom_NuGet), MenuIcon = "Images/AssemblyListGAC.png", MenuCategory = nameof(Resources.Open), MenuOrder = 1)]
     sealed class OpenFromNuGetCommand : SimpleCommand
 	{
 		public override async void Execute(object parameter)
 		{
-            OpenFileDialog dlg = new OpenFileDialog();
-			dlg.Title = "Open file";
-            dlg.Directory = NuGetEnvironment.GetFolderPath(NuGetFolderPath.NuGetHome);
-            dlg.Filters = new List<FileDialogFilter>()
-            {
-                new FileDialogFilter() { Name = "Nuget Packages (*.nupkg)", Extensions = { "nupkg" }},
-                new FileDialogFilter() { Name = ".NET assemblies", Extensions = {"dll","exe", "winmd" }},
-                new FileDialogFilter() { Name = "All files", Extensions = { "*" }},
-            };
-            dlg.AllowMultiple = true;
-            var filenames = await dlg.ShowAsync(MainWindow.Instance);
-            if (filenames != null && filenames.Length > 0)
+            var filenames = await FileDialogs.OpenFilesAsync(MainWindow.GetResourceString(nameof(Resources.OpenFrom_NuGet)), new[] {
+                FileDialogs.Filter("NuGet packages (*.nupkg)", "nupkg"),
+                FileDialogs.Filter(".NET assemblies", "dll", "exe", "winmd"),
+                FileDialogs.AllFiles,
+            }, startDirectory: NuGetEnvironment.GetFolderPath(NuGetFolderPath.NuGetHome));
+            if (filenames.Length > 0)
             {
                 MainWindow.Instance.OpenFiles(filenames);
             }

@@ -1,41 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Styling;
-using System.Linq.Expressions;
 
 namespace ICSharpCode.ILSpy.Controls
 {
-    public class DialogWindow: PlatformDependentWindow, IStyleable
+    public class DialogWindow : PlatformDependentWindow
 	{
-        static readonly Func<Window, object> _dialogResultField;
+        /// <summary>
+        /// Gets the result passed to <see cref="Close(object)"/>, or null if the dialog was closed otherwise.
+        /// </summary>
+        public object DialogResult { get; private set; }
 
-        public object DialogResult { get { return _dialogResultField(this); } }
-
-        static DialogWindow()
+        public new void Close(object dialogResult)
         {
-            var instanceParameter = Expression.Parameter(typeof(Window));
-            var filed = typeof(Window).GetField("_dialogResult", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            var getValueExp = Expression.Field(instanceParameter, filed);
-            _dialogResultField = Expression.Lambda<Func<Window, object>>(getValueExp, instanceParameter).Compile();
+            DialogResult = dialogResult;
+            base.Close(dialogResult);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.Key == Key.Escape && e.KeyModifiers == KeyModifiers.None)
+            if (!e.Handled && e.Key == Key.Escape && e.KeyModifiers == KeyModifiers.None)
             {
                 Close();
                 e.Handled = true;
             }
         }
-
-        Type IStyleable.StyleKey { get; } = typeof(Window);
     }
 }

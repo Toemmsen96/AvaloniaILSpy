@@ -16,6 +16,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using Avalonia.Input;
 using AvaloniaEdit;
 using ICSharpCode.ILSpy.Analyzers;
@@ -29,15 +30,20 @@ namespace ICSharpCode.ILSpy
 
     public static class NavigationCommands
     {
-        public static RoutedCommand BrowseBack { get; } = new NavigationCommand(nameof(BrowseBack), new KeyGesture(Key.BrowserBack, KeyModifiers.Control));
-        public static RoutedCommand BrowseForward { get; } = new NavigationCommand(nameof(BrowseForward), new KeyGesture(Key.BrowserForward, KeyModifiers.Control));
-        public static RoutedCommand Search { get; } = new RoutedCommand(nameof(Search), new KeyGesture(Key.F, KeyModifiers.Control | KeyModifiers.Shift));
+        public static RoutedCommand BrowseBack { get; } = new RoutedCommand(nameof(BrowseBack), new KeyGesture(Key.Left, KeyModifiers.Alt));
+        public static RoutedCommand BrowseForward { get; } = new RoutedCommand(nameof(BrowseForward), new KeyGesture(Key.Right, KeyModifiers.Alt));
+        public static RoutedCommand Search { get; } = new RoutedCommand(nameof(Search), new KeyGesture(Key.F, ApplicationCommands.CommandModifiers | KeyModifiers.Shift));
     }
 
     public static class ApplicationCommands
     {
-        public static RoutedCommand Open { get; } = new RoutedCommand(nameof(Open), new KeyGesture(Key.O, KeyModifiers.Control));
-        public static RoutedCommand Save { get; } = new RoutedCommand(nameof(Save), new KeyGesture(Key.S, KeyModifiers.Control));
-        public static RoutedCommand Refresh { get; } = new RoutedCommand(nameof(Refresh), new KeyGesture(Key.R, KeyModifiers.Control));
+        /// <summary>
+        /// The modifier used for application shortcuts: Cmd on macOS, Ctrl everywhere else.
+        /// </summary>
+        public static KeyModifiers CommandModifiers { get; } = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+
+        public static RoutedCommand Open { get; } = new RoutedCommand(nameof(Open), new KeyGesture(Key.O, CommandModifiers));
+        public static RoutedCommand Save { get; } = new RoutedCommand(nameof(Save), new KeyGesture(Key.S, CommandModifiers));
+        public static RoutedCommand Refresh { get; } = new RoutedCommand(nameof(Refresh), new KeyGesture(Key.R, CommandModifiers));
     }
 }

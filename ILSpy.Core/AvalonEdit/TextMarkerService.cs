@@ -111,7 +111,7 @@ namespace ICSharpCode.ILSpy.AvaloniaEdit
 		/// </summary>
 		internal void Redraw(ISegment segment)
 		{
-			textView.Redraw(segment, DispatcherPriority.Normal);
+			textView.Redraw(segment);
 			if (RedrawRequested != null)
 				RedrawRequested(this, EventArgs.Empty);
 		}
@@ -137,7 +137,7 @@ namespace ICSharpCode.ILSpy.AvaloniaEdit
 					Math.Min(marker.EndOffset, lineEnd),
 					element => {
 						if (foregroundBrush != null) {
-							element.TextRunProperties.ForegroundBrush = foregroundBrush;
+							element.TextRunProperties.SetForegroundBrush(foregroundBrush);
 						}
 						// TODO: change font style
 						//string tf = element.TextRunProperties.Typeface;
@@ -280,7 +280,7 @@ namespace ICSharpCode.ILSpy.AvaloniaEdit
 		public Color? BackgroundColor {
 			get { return backgroundColor; }
 			set {
-				if (backgroundColor.GetValueOrDefault().ToUint32() != value.GetValueOrDefault().ToUint32()) {
+				if (backgroundColor.GetValueOrDefault().ToUInt32() != value.GetValueOrDefault().ToUInt32()) {
 					backgroundColor = value;
 					Redraw();
 				}
@@ -292,7 +292,7 @@ namespace ICSharpCode.ILSpy.AvaloniaEdit
 		public Color? ForegroundColor {
 			get { return foregroundColor; }
 			set {
-				if (foregroundColor.GetValueOrDefault().ToUint32() != value.GetValueOrDefault().ToUint32()) {
+				if (foregroundColor.GetValueOrDefault().ToUInt32() != value.GetValueOrDefault().ToUInt32()) {
 					foregroundColor = value;
 					Redraw();
 				}
@@ -342,7 +342,7 @@ namespace ICSharpCode.ILSpy.AvaloniaEdit
 		public Color MarkerColor {
 			get { return markerColor; }
 			set {
-				if (markerColor.ToUint32() != value.ToUint32()) {
+				if (markerColor.ToUInt32() != value.ToUInt32()) {
 					markerColor = value;
 					Redraw();
 				}

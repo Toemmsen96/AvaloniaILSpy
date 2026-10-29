@@ -72,14 +72,11 @@ namespace ICSharpCode.ILSpy
 			createButton.Click += CreateButton_Click;
 			resetButton.Click += ResetButton_Click;
 
-			TemplateApplied += (sender, e) => Application.Current.FocusManager.Focus(listView);
-			listView.TemplateApplied += listView_Loaded;
-		}
-
-		private void listView_Loaded(object sender, EventArgs e)
-		{
-			listView.Items = manager.AssemblyLists;
-			CreateDefaultAssemblyLists();
+			listView.ItemsSource = manager.AssemblyLists;
+			Opened += (sender, e) => {
+				CreateDefaultAssemblyLists();
+				listView.Focus();
+			};
 		}
 
 		void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -103,7 +100,7 @@ namespace ICSharpCode.ILSpy
 		{
 			get
 			{
-				return listView.SelectedItem.ToString();
+				return listView.SelectedItem?.ToString();
 			}
 		}
 
@@ -140,7 +137,7 @@ namespace ICSharpCode.ILSpy
 					if (manager.AssemblyLists.Contains(dlg.NewListName))
 					{
 						args.Cancel = true;
-						MessageBox.Show("A list with the same name was found.", "Error!", MessageBoxButton.OK);
+						MessageBox.Show(dlg, "A list with the same name was found.", "Error!", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.None);
 					}
 				}
 			};

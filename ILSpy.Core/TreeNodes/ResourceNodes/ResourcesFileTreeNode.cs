@@ -1,4 +1,4 @@
-// Copyright (c) 2011 AlphaSierraPapa for the SharpDevelop Team
+﻿// Copyright (c) 2011 AlphaSierraPapa for the SharpDevelop Team
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -116,25 +116,20 @@ namespace ICSharpCode.ILSpy.TreeNodes
 		{
 			Stream s = Resource.TryOpenStream();
 			if (s == null) return false;
-            SaveFileDialog dlg = new SaveFileDialog();
-			dlg.Title = "Save file";
-            dlg.InitialFileName = DecompilerTextView.CleanUpName(Resource.Name);
-            dlg.Filters = new List<FileDialogFilter>()
-            {
-                new FileDialogFilter(){ Name="Resources file(*.resources)", Extensions = { "resources" } },
-                new FileDialogFilter(){ Name="Resource XML file(*.resx)", Extensions = { "resx" } }
-            };
-            var filename = await dlg.ShowAsync(App.Current.GetMainWindow());
+            var filename = await FileDialogs.SaveFileAsync(Properties.Resources.SaveCode, DecompilerTextView.CleanUpName(Resource.Name), new[] {
+                FileDialogs.Filter("Resources file (*.resources)", "resources"),
+                FileDialogs.Filter("Resource XML file (*.resx)", "resx"),
+            });
             if (!string.IsNullOrEmpty(filename)) {
                 s.Position = 0;
-                if (filename.Contains("resources")) {
-                    using (var fs = File.OpenWrite(filename)) {
+                if (!string.Equals(Path.GetExtension(filename), ".resx", StringComparison.OrdinalIgnoreCase)) {
+                    using (var fs = File.Create(filename)) {
                         s.CopyTo(fs);
                     }
                 } else {
                     try
                     {
-                        using (var writer = new ResXResourceWriter(File.OpenWrite(filename)))
+                        using (var writer = new ResXResourceWriter(File.Create(filename)))
                         {
                             foreach (var entry in new ResourcesFile(s))
                             {
